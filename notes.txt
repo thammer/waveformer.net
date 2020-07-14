@@ -1,0 +1,24 @@
+# Misc notes
+
+## git submodules
+- https://github.com/EmaroLab/docs/wiki/GitHub-Tutorial-to-Manage-Project-with-SubRepositories
+- https://git-scm.com/book/en/v2/Git-Tools-Submodules
+
+Adding submodule:
+git submodule add https://github.com/thammer/midimonitor.git
+git commit -m "Added midomonitor submodule"
+git push origin master
+
+If cloning again: 
+git submodule update --init --recursive --remote
+git submodule foreach git pull origin master
+git submodule foreach git checkout master
+
+Updating waveformer.net with latest stuff from submodules (removing all local changes):
+git submodule foreach git reset --hard
+git submodule update --recursive --remote
+
+## Bind this for callback functions
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
+- https://github.com/djipco/webmidi/blob/master/src/webmidi.js
+
