@@ -1,0 +1,3 @@
+[submodule "midimonitor"]
+	path = midimonitor
+	url = https://github.com/thammer/midimonitor.git
