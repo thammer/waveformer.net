@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+    <script type="text/javascript" src="common.js"></script>
+    <head>
+        <meta charset="UTF-8">
+        <title>Waveformer Delay Calculator</title>
+        <link href="https://fonts.googleapis.com/css?family=Alata|Dosis|Didact|Roboto&display=swap" rel="stylesheet"/>    
+        <link rel="stylesheet" type="text/css" href="common.css"/>
+        <link rel="stylesheet" type="text/css" href="navbar.css"/>
+
+        <style>
+            body {
+                font-family: 'Roboto', sans-serif;
+            }
+            input[type=number] {
+                width: 90%;
+                margin: 4px 0;
+                box-sizing: content-box;
+                text-align: right;
+            }
+            table#delayTable {
+                border: 1px solid black;
+                border-collapse: collapse;
+                text-align: center;
+                vertical-align: middle;
+                table-layout: fixed;
+            } 
+            table#delayTable tr {
+                border: 1px solid black;
+                border-collapse: collapse;
+            } 
+            table#delayTable td, table#delayTable th {
+                border: 1px solid black;
+                border-collapse: collapse;
+                padding: 8px;
+            } 
+
+            table#paramsTable {
+                border: 1px solid black;
+                border-collapse: collapse;
+                text-align: left;
+                vertical-align: middle;
+                table-layout: auto;
+            } 
+            table#paramsTable th {
+                border-collapse: collapse;
+                padding: 4px;
+            } 
+            table#paramsTable t3 {
+                border-collapse: collapse;
+                padding: 4px;
+            } 
+
+            table.center {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            h1 {
+                text-align: center;
+            }
+            p.center {
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body onload="buildTable()">
+
+        <div w3-include-html="navbar.html"></div> 
+
+        <h1>Waveformer Delay Calculator</h1>
+        <table id="paramsTable" class="center">
+            <tr>
+                <th>
+                    <label for="bpm">BPM ♩</label>
+                </th>
+                <td>
+                    <input type="number" id="bpm" value="120" size="10" maxlength="4" onChange="buildTable()" onkeyup="buildTable()"/>
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    <label for="numBeats">Number of beats ♩</label>
+                </tn>
+                <td>
+                        <input type="number" id="numBeats" value="4" onChange="buildTable()" onkeyup="buildTable()"/>
+                </td>
+            </tr>            
+            <tr>
+                <th>
+                    <label for="numStepsPerBeat">Steps per beat</label>
+                </th>
+                <td>
+                        <input type="number" id="numStepsPerBeat" value="4" onChange="buildTable()" onkeyup="buildTable()"/>
+                </td>
+            </tr>            
+            </table>
+
+        <br/>
+        <table id="delayTable" class="center">
+        </table>
+
+        <p class="center">Click on a cell in the Delay (ms) row to add an echo on that step.</p>
+
+        <script>
+            var colors = new Array('#27AE60', '#3998DB', '#F1C40F', '#E74C3C', '#9B59B6', '#795548', '#BDC3C7', '#E91E63');
+            var grayColors = new Array('#EEEEEE', '#CCCCCC');
+            var defaultCellColor = '#FFFFFF';
+
+            document.body.addEventListener('click', clicked);
+
+            var bpm;
+            var numBeats;
+            var numStepsPerBeat;
+            var numSteps;
+            var timePerStep;
+
+            var echo; // array[numSteps], value = -1 means no echo on that step, 
+                      // otherwise value = number of the beat that echos on that step
+
+            function pad(num, width, c)
+            {
+                c = c || ' ';
+                num = num + '';
+                return num.length >= width ? num : new Array(width - num.length + 1).join(c) + num;
+            }
+
+            function buildTable()
+            {
+                var table = document.getElementById("delayTable");
+                table.innerHTML="";
+
+                bpm = document.getElementById("bpm").value;
+                numStepsPerBeat = document.getElementById("numStepsPerBeat").value;
+                numBeats = document.getElementById("numBeats").value;
+
+                numSteps = numStepsPerBeat*numBeats;
+                timePerStep = 1000*60/bpm/numStepsPerBeat;
+
+                echo = new Array(numSteps);
+                for (var s=0; s<numSteps; s++)
+                {
+                    if (s % numStepsPerBeat == 0)
+                        echo[s] = Math.floor(s / numStepsPerBeat); 
+                    else
+                        echo[s] = -1; // no echo on this step
+                }
+
+                // Beats
+                var row = document.createElement("tr");
+                table.appendChild(row);
+                var d = document.createElement("th");
+                row.appendChild(d);
+                var t = document.createTextNode("Beat");
+                d.appendChild(t);
+
+                for (var b=0; b<numBeats; b++)
+                {
+                    var d = document.createElement("th");
+                    d.style.backgroundColor = grayColors[b%grayColors.length];
+                    d.colSpan = numStepsPerBeat;
+                    var t = document.createTextNode(b + 1);
+                    d.appendChild(t);
+                    row.appendChild(d);
+                }
+                
+                // Steps
+                row = document.createElement("tr");
+                table.appendChild(row);
+                var d = document.createElement("th");
+                row.appendChild(d);
+                var t = document.createTextNode("Step");
+                d.appendChild(t);
+
+                for (var b=0; b<numBeats; b++)
+                {
+                    for (var s=0; s<numStepsPerBeat; s++) 
+                    {
+                        var d = document.createElement("th");
+                        d.style.backgroundColor = grayColors[b%grayColors.length];
+                        var t = document.createTextNode(s+1);
+                        var globalStep = b*numStepsPerBeat+s;
+                        d.appendChild(t);
+                        row.appendChild(d);
+                    }
+                }
+
+                // Echo
+                row = document.createElement("tr");
+                table.appendChild(row);
+                var d = document.createElement("th");
+                row.appendChild(d);
+                var t = document.createTextNode("Echo");
+                d.appendChild(t);
+
+                for (var b=0; b<numBeats; b++)
+                {
+                    for (var s=0; s<numStepsPerBeat; s++) 
+                    {
+                        var d = document.createElement("th");
+                        d.style.backgroundColor = grayColors[b%grayColors.length];
+                        var t = document.createTextNode(b*numStepsPerBeat+s);
+                        var globalStep = b*numStepsPerBeat+s;
+                        d.appendChild(t);
+                        row.appendChild(d);
+                    }
+                }
+
+                // Delay
+                row = document.createElement("tr");
+                table.appendChild(row);
+                var d = document.createElement("th");
+                row.appendChild(d);
+                var t = document.createTextNode("Delay (ms)");
+                d.appendChild(t);
+
+                for (var b=0; b<numBeats; b++)
+                {
+                    for (var s=0; s<numStepsPerBeat; s++) 
+                    {
+                        var d = document.createElement("td");
+                        d.id = b*numStepsPerBeat+s;
+                        var str = Math.round(timePerStep*(b*numStepsPerBeat+s));
+                        str = pad(str, 4, '0');
+                        var t = document.createTextNode(str);
+                        if (s==0)
+                        {
+                            d.style.backgroundColor = colors[b%colors.length];
+                            d.style.fontWeight = "bold";
+                        }
+                        else
+                            d.style.backgroundColor = defaultCellColor;
+                        d.appendChild(t);
+                        row.appendChild(d);
+                    }
+                }
+            }
+
+            // Repeats echos for beat 1 for all of the other beats as well
+            function updateEchoArray()
+            {
+                for (var step=0; step<numSteps; step++)
+                {
+                    if (echo[step] > 0)
+                        echo[step] = -1; // clear all echos that are not echos from the first beat
+                }
+                for (var b=1; b<numBeats; b++)
+                {
+                    for (var step=0; step<numSteps; step++)
+                    {
+                        if (echo[step] == 0)
+                        {
+                            echo[(b*numStepsPerBeat + step) % numSteps] = b;
+                        }
+                    }
+                }
+            }
+
+            function changeLuminance(hex, luminance)
+            {
+                var color = "#";
+                for (var i=0; i<3; i++)
+                {
+                    var c = parseInt(hex.substr(i*2+1, 2), 16);
+                    c = Math.round(Math.min(255, Math.max(0, c + (c * luminance)))).toString(16);
+                    color += ("00" + c).substr(c.length);
+                }
+                return color;
+            }
+
+            function updateTableColors()
+            {
+                for (var step = 0; step < numSteps; step++)
+                {
+                    var d = document.getElementById(step);
+                    if (echo[step] == -1)
+                        d.style.backgroundColor = defaultCellColor;
+                    else
+                    {
+                        if (step % numStepsPerBeat == 0)
+                            d.style.backgroundColor = colors[echo[step]];
+                        else
+                            d.style.backgroundColor = changeLuminance(colors[echo[step]], 0.1);
+                    }
+                }
+            }
+
+            function clicked(event)
+            {
+                var clickedCell = false;
+                console.log("Clicked ", event);
+                for (var b=0; b<numBeats; b++)
+                {
+                    for (var s=0; s<numStepsPerBeat; s++) 
+                    {
+                        var d = document.getElementById(b*numStepsPerBeat+s);
+                        if (d.contains(event.target))
+                        {
+                            clickedCell = true;
+                            console.log("Clicked in cell on beat " + b + ", step " + s);
+                            if (s==0)
+                            {
+                                console.log("Ignore click on first step");
+                            }
+                            else
+                            {
+                                var globalStep = b*numStepsPerBeat+s;
+                                var echoBeat = echo[globalStep];
+                                if (echoBeat == -1) // no previous echo on this step
+                                {
+                                    echo[globalStep] = 0; // echo from beat 1
+                                }
+                                else if (echoBeat == 0) // echo from beat 1 on this step
+                                {
+                                    echo[globalStep] = -1; // remove echo from beat 1
+                                }
+                                else {
+                                    var diff = (numSteps + globalStep - echoBeat * numStepsPerBeat) % numSteps;
+                                    echo[diff] = -1; // remove corresponding echo from beat 1
+                                    console.log("diff: ", diff);
+                                }
+                            }
+                        }
+                    }
+                }
+                if (clickedCell)
+                {
+                    updateEchoArray();
+                    updateTableColors();                    
+                }
+            }
+        </script>
+
+        <script>
+            includeHTML();
+        </script>
+    </body>
+</html>
