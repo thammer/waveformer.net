@@ -4,3 +4,6 @@
 [submodule "circuitbender"]
 	path = circuitbender
 	url = https://github.com/thammer/circuitbender.git
+[submodule "zoom-explorer"]
+	path = zoom-explorer
+	url = https://github.com/thammer/zoom-explorer
