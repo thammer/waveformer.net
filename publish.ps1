@@ -9,6 +9,10 @@ if ($output -eq "")
 
 Write-Host "Publishing to directory '$($output)'"
 
+# Write-Host "Getting the latest submodules (and deleting all local changes to submodules)"
+# git submodule foreach git reset --hard
+# git submodule update --recursive --remote
+
 Write-Host "Building zoom-explorer"
 
 Set-Location "zoom-explorer"
@@ -18,7 +22,7 @@ robocopy .\public .\dist
 
 Set-Location ".."
 
-New-Item -Path "$($output)" -Name "zoom-explorer" -ItemType Directory
+New-Item -Force -Path "$($output)" -Name "zoom-explorer" -ItemType Directory
 
 Write-Host "Copying files to directory '$($output)'"
 
