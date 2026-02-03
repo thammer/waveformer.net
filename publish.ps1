@@ -30,12 +30,26 @@ robocopy /s . ..\website\ /xd ".git" /xd ".vscode" /xd "nodemodules" /xd "zoom-e
 robocopy /s .\zoom-explorer\dist ..\website\zoom-explorer /xd ".git" /xd ".vscode" /xd "nodemodules" /xf ".git" /xf ".gitignore" /xf ".gitmodules" /xf "*.sh" /xf "*.ps1"
 
 Write-Host "Done copying files to directory '$($output)'"
-Write-Host "Patching html files for navigation bar"
+Write-Host "Patching html files for navigation bar and tracking"
 
-(Get-Content -path 'midimonitor/index.html' -Raw) -replace '<!-- For www.waveformer.net', '' -replace '-->', '' | Set-Content -path "$($output)/midimonitor/index.html"
-(Get-Content -path 'circuitbender/index.html' -Raw) -replace '<!-- For www.waveformer.net', '' -replace '-->', '' | Set-Content -path "$($output)/circuitbender/index.html"
-(Get-Content -path 'zoom-explorer/dist/index.html' -Raw) -replace '<!-- For www.waveformer.net', '' -replace '-->', '' | Set-Content -path "$($output)/zoom-explorer/index.html"
+$tagString = @"
+<head>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y1CJCMZQ16"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
 
-Write-Host "Done patching html files for navigation bar"
+        gtag('config', 'G-Y1CJCMZQ16');
+        </script>
+
+"@
+
+(Get-Content -path 'midimonitor/index.html' -Raw) -replace '<!-- For www.waveformer.net', '' -replace '-->', '' -replace '<head>', $tagString | Set-Content -path "$($output)/midimonitor/index.html"
+(Get-Content -path 'circuitbender/index.html' -Raw) -replace '<!-- For www.waveformer.net', '' -replace '-->', ''  -replace '<head>', $tagString | Set-Content -path "$($output)/circuitbender/index.html"
+(Get-Content -path 'zoom-explorer/dist/index.html' -Raw) -replace '<!-- For www.waveformer.net', '' -replace '-->', ''  -replace '<head>', $tagString | Set-Content -path "$($output)/zoom-explorer/index.html"
+
+Write-Host "Done patching html files for navigation bar and tracking"
 Write-Host "Publishing to directory '$($output)' completed"
 
