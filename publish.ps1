@@ -13,6 +13,8 @@ Write-Host "Publishing to directory '$($output)'"
 # git submodule foreach git reset --hard
 # git submodule update --recursive --remote
 
+# zoom-explorer
+
 Write-Host "Building zoom-explorer"
 
 Set-Location "zoom-explorer"
@@ -24,10 +26,25 @@ Set-Location ".."
 
 New-Item -Force -Path "$($output)" -Name "zoom-explorer" -ItemType Directory
 
+# midiclock
+
+Write-Host "Building midiclock"
+
+Set-Location "midiclock"
+
+npm run build
+
+Set-Location ".."
+
+New-Item -Force -Path "$($output)" -Name "midiclock" -ItemType Directory
+
+# Copying files
+
 Write-Host "Copying files to directory '$($output)'"
 
-robocopy /s . ..\website\ /xd ".git" /xd ".vscode" /xd "nodemodules" /xd "zoom-explorer" /xf ".git" /xf ".gitignore" /xf ".gitmodules" /xf "*.sh" /xf "*.ps1"
+robocopy /s . ..\website\ /xd ".git" /xd ".vscode" /xd "nodemodules" /xd "zoom-explorer" /xd "midiclock" /xf ".git" /xf ".gitignore" /xf ".gitmodules" /xf "*.sh" /xf "*.ps1"
 robocopy /s .\zoom-explorer\dist ..\website\zoom-explorer /xd ".git" /xd ".vscode" /xd "nodemodules" /xf ".git" /xf ".gitignore" /xf ".gitmodules" /xf "*.sh" /xf "*.ps1"
+robocopy /s .\midiclock\deploy ..\website\midiclock /xd ".git" /xd ".vscode" /xd "nodemodules" /xf ".git" /xf ".gitignore" /xf ".gitmodules" /xf "*.sh" /xf "*.ps1"
 
 Write-Host "Done copying files to directory '$($output)'"
 Write-Host "Patching html files for navigation bar and tracking"
@@ -47,6 +64,7 @@ $tagString = @"
 "@
 
 (Get-Content -path 'midimonitor/index.html' -Raw) -replace '<!-- For www.waveformer.net', '' -replace '-->', '' -replace '<head>', $tagString | Set-Content -path "$($output)/midimonitor/index.html"
+(Get-Content -path 'midiclock/deploy/index.html' -Raw) -replace '<!-- For www.waveformer.net', '' -replace '-->', '' -replace '<head>', $tagString | Set-Content -path "$($output)/midiclock/index.html"
 (Get-Content -path 'circuitbender/index.html' -Raw) -replace '<!-- For www.waveformer.net', '' -replace '-->', ''  -replace '<head>', $tagString | Set-Content -path "$($output)/circuitbender/index.html"
 (Get-Content -path 'zoom-explorer/dist/index.html' -Raw) -replace '<!-- For www.waveformer.net', '' -replace '-->', ''  -replace '<head>', $tagString | Set-Content -path "$($output)/zoom-explorer/index.html"
 

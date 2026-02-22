@@ -7,3 +7,6 @@
 [submodule "zoom-explorer"]
 	path = zoom-explorer
 	url = https://github.com/thammer/zoom-explorer
+[submodule "midiclock"]
+	path = midiclock
+	url = https://github.com/thammer/midiclock

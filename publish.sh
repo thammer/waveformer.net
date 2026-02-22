@@ -11,6 +11,7 @@ git submodule foreach git reset --hard
 git submodule update --recursive --remote
 echo "Patching submodules (adding navbar)"
 sed -i -e "s/<\!-- For www.waveformer.net //" -e "s/-->//" midimonitor/index.html
+sed -i -e "s/<\!-- For www.waveformer.net //" -e "s/-->//" midiclock/index.html
 sed -i -e "s/<\!-- For www.waveformer.net //" -e "s/-->//" circuitbender/index.html
 echo "Publishing to directory \"$output\""
 rsync -avr --exclude='.git' --exclude='.vscode' --exclude='*.sh' --exclude=".gitmodules" . $output
